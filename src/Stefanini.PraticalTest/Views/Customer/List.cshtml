@@ -1,0 +1,146 @@
+﻿@model Stefanini.PraticalTest.Models.CustomerSearchRequest
+
+@{
+    ViewBag.Title = "Customer List";
+}
+
+<h2>Customer List</h2>
+
+
+
+@using (Html.BeginForm("Search", "Customer", FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+    
+    <div class="form-horizontal">
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+       
+        <div class="form-group">
+            @Html.LabelFor(model => model.Name, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-md-2" for="GenderId">Gender</label>
+            <div class="col-md-10">
+                @Html.DropDownList("GenderId", null, "Select a gender...", htmlAttributes: new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.GenderId, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        
+        
+        <div class="form-group">
+            <label class="control-label col-md-2" for="CityId">City</label>
+            <div class="col-md-10">
+                @Html.DropDownList("CityId", null, "Select a city...", htmlAttributes: new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.CityId, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label class="control-label col-md-2" for="RegionId">Region</label>
+            <div class="col-md-10">
+                @Html.DropDownList("RegionId", null, "Select a region...", htmlAttributes: new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.RegionId, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label class="control-label col-md-2" for="LastPurchase">Last Purchase</label>
+            <div class="col-md-10">
+                @Html.TextBoxFor(model => model.LastPurchase, new { type = "date", @class = "form-control" })
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label class="control-label col-md-2" for="Until">Until</label>
+            <div class="col-md-10">
+                @Html.TextBoxFor(model => model.Until, new { type = "date", @class = "form-control" })
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label class="control-label col-md-2" for="ClassificationId">Classification</label>
+            <div class="col-md-10">
+                @Html.DropDownList("ClassificationId", null, "Select a classification...", htmlAttributes: new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.ClassificationId, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        
+        
+        @if (ViewBag.IsAdmin)
+        {
+            <div class="form-group">
+                <label class="control-label col-md-2" for="SellerId">Seller</label>
+                <div class="col-md-10">
+                    @Html.DropDownList("SellerId", null, "Select a seller...", htmlAttributes: new {@class = "form-control"})
+                    @Html.ValidationMessageFor(model => model.SellerId, "", new {@class = "text-danger"})
+                </div>
+            </div>
+        }
+        
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Search"       class="btn btn-default" />
+                <input type="reset"  value="Clear fields" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+}
+
+
+<table class="table table-bordered">
+    <thead>
+    <tr>
+        <td>Classification</td>
+        <td>Name</td>
+        <td>Phone</td>
+        <td>Gender</td>
+        <td>City</td>
+        <td>Region</td>
+        <td>Last Purchase</td>
+        @if (ViewBag.IsAdmin)
+        {
+            <td>Seller</td>
+        }
+    </tr>
+    </thead>
+    @foreach (var customer in ViewBag.Customers)
+    {
+        <tr>
+            <td>@customer.Classification</td>
+            <td>@customer.Name</td>
+            <td>@customer.Phone</td>
+            <td>@customer.Gender</td>
+            <td>@customer.City</td>
+            <td>@customer.Region</td>
+            <td>@customer.LastPurchase</td>
+    @if (ViewBag.IsAdmin)
+    {
+        <td>@customer.Seller</td>
+    }
+        </tr>
+    }
+</table>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    
+    <script>
+        $('#CityId').change(function() {
+            var cityId = $(this).val();
+
+            $.get('/Customer/RegionByCityId', {cityId: cityId}).done(function(data){
+                var drop = $('#RegionId');
+                drop.html("");
+                $.each(data, function(i, item) {
+                    drop.append('<option value="'+item.Id+'">'+item.Name+'</option>');
+                });
+            });
+        });
+    </script>
+}
